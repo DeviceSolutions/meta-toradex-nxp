@@ -9,6 +9,11 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 SRC_URI = " \
     git://git.toradex.com/linux-toradex.git;protocol=https;branch=${SRCBRANCH};name=machine \
 "
+SRC_URI:append = " \
+	file://0001-Add-ATDM-carrier-board-support.patch \
+	file://0002-Add-touch-driver-from-latest-kernel-source-6.x.patch \
+	file://0003-Done-final-adjustment-for-LCD-and-touch-in-device-tr.patch \
+	file://atdm_driver.cfg"
 
 # Load USB functions configurable through configfs (CONFIG_USB_CONFIGFS)
 KERNEL_MODULE_AUTOLOAD += "${@bb.utils.contains('COMBINED_FEATURES', 'usbgadget', ' libcomposite', '',d)}"
