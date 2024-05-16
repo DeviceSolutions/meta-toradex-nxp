@@ -1,0 +1,30 @@
+From 5e8a89c9ea0b63bae7085a1b5b8a523d168ac98a Mon Sep 17 00:00:00 2001
+From: Jignesh <jignesh@ebytelogic.com>
+Date: Wed, 15 May 2024 14:08:10 +0530
+Subject: [PATCH] Add second ethernet as fix
+
+---
+ arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi b/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi
+index e61b2fc7e375b..4f230fc224282 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi
+@@ -92,6 +92,13 @@ &eqos {
+ /* Verdin ETH_2 */
+ &fec {
+ 	status = "okay";
++	/delete-property/ phy-handle;
++	/delete-node/ mdio;
++
++	fixed-link {
++		speed = <1000>;
++		full-duplex;
++	};
+ };
+ 
+ /* Verdin CAN_1 */
+-- 
+2.25.1
+
