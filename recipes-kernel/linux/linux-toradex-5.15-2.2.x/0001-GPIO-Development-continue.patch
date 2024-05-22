@@ -1,0 +1,110 @@
+From 60db9b1248d7d660024963e4288c274a9a157137 Mon Sep 17 00:00:00 2001
+From: Jignesh <jignesh@ebytelogic.com>
+Date: Thu, 18 Apr 2024 10:54:33 +0530
+Subject: [PATCH] GPIO Development continue
+
+---
+ .../dts/freescale/imx8mp-verdin-atdm.dtsi     | 39 +++++++++++++++++--
+ .../boot/dts/freescale/imx8mp-verdin.dtsi     |  6 ---
+ 2 files changed, 36 insertions(+), 9 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi b/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi
+index de28406cc1ea..0a1e6194c1e8 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi
+@@ -55,7 +55,26 @@ &eqos {
+ 
+ /* Verdin ETH_2 */
+ &fec {
++//	phy-handle = <&ethphy1>;
++//	pinctrl-0 = <&pinctrl_fec>, <&pinctrl_ctrl_reset_moci>;
++//	pinctrl-1 = <&pinctrl_fec_sleep>;
+ 	status = "okay";
++
++/*
++	mdio {	
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		 ethphy1: ethernet-phy@7 {
++			compatible = "Microchip KSZ9131 Gigabit PHY";
++			interrupt-parent = <&gpio4>;
++			interrupts = <18 IRQ_TYPE_LEVEL_LOW>;
++			reset-gpios = <&gpio4 31 GPIO_ACTIVE_LOW>;
++			micrel,led-mode = <0>;
++			reg = <7>;
++		};
++	};
++*/
+ };
+ 
+ /* Verdin CAN_1 */
+@@ -75,7 +94,7 @@ &hwmon_temp {
+ };
+ 
+ /* Verdin I2C_1 */
+-&i2c1 {
++&i2c4 {
+ 	status = "okay";
+ 
+         pca6416: gpio@20 {
+@@ -83,11 +102,12 @@ pca6416: gpio@20 {
+                 reg = <0x20>;
+                 gpio-controller;
+                 #gpio-cells = <2>;
++		interrupt-parent = <&gpio3>;
++		interrupts = <1 IRQ_TYPE_EDGE_FALLING>;
++		reset-gpios = <&gpio3 0 GPIO_ACTIVE_LOW>;
+         };
+ };
+ 
+-
+-
+ /* Verdin I2C_2_DSI */
+ &i2c2 {
+ 	status = "okay";
+@@ -160,6 +180,15 @@ &usb3_phy0 {
+ /* Verdin USB_2 */
+ &usb3_1 {
+ 	status = "okay";
++
++	modem: modem@20 {
++                compatible = "dummy,quectel";
++                reg = <0x20>;
++                pinctrl-names = "default";
++                pinctrl-0 = <&pinctrl_ctrl_reset_modem>;
++                reset-gpios = <&gpio1 6 GPIO_ACTIVE_HIGH>;
++                status = "okay";
++	};
+ };
+ 
+ &usb3_phy1 {
+@@ -276,4 +305,8 @@ pinctrl_ecspi3: ecspi3grp {
+ 			<MX8MP_IOMUXC_UART2_TXD__GPIO5_IO25		0x1c0>; //TODO need to change to GPIO or SS0 ?
+         };
+ 
++	pinctrl_ctrl_reset_modem: ctrlresetmodemgrp {
++		fsl,pins =
++			<MX8MP_IOMUXC_GPIO1_IO06__GPIO1_IO06            0x184>; /* SODIMM 212 */
++        };
+ };
+diff --git a/arch/arm64/boot/dts/freescale/imx8mp-verdin.dtsi b/arch/arm64/boot/dts/freescale/imx8mp-verdin.dtsi
+index 5eaf9000e535..0cf268831777 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mp-verdin.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mp-verdin.dtsi
+@@ -347,12 +347,6 @@ &fec {
+ 	pinctrl-0 = <&pinctrl_fec>;
+ 	pinctrl-1 = <&pinctrl_fec_sleep>;
+ 
+-	fixed-link {
+-		speed = <1000>;
+-		full-duplex;
+-		pause;
+-	};
+-
+ 	mdio {
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+-- 
+2.25.1
+

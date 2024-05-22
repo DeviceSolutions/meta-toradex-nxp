@@ -1,0 +1,283 @@
+From 11218ad1e8a15a85358c2a28d8a47cdf6efc5c3f Mon Sep 17 00:00:00 2001
+From: Jignesh <jignesh@ebytelogic.com>
+Date: Sat, 6 Apr 2024 14:40:23 +0530
+Subject: [PATCH] Gpio Develpment
+
+Signed-off-by: Jignesh <jignesh@ebytelogic.com>
+---
+ .../dts/freescale/imx8mp-verdin-atdm.dtsi     | 184 ++++++++++--------
+ .../boot/dts/freescale/imx8mp-verdin.dtsi     |  13 +-
+ 2 files changed, 114 insertions(+), 83 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi b/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi
+index 3c30c50d227c..de28406cc1ea 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi
+@@ -9,44 +9,6 @@
+ #include <dt-bindings/leds/common.h>
+ 
+ / {
+-	leds {
+-		compatible = "gpio-leds";
+-		pinctrl-names = "default";
+-		pinctrl-0 = <&pinctrl_leds>;
+-
+-		/* SODIMM 52 - USER_LED_1_RED */
+-		led-0 {
+-			color = <LED_COLOR_ID_RED>;
+-			function = LED_FUNCTION_DEBUG;
+-			function-enumerator = <1>;
+-			gpios = <&gpio3 0 GPIO_ACTIVE_HIGH>;
+-		};
+-
+-		/* SODIMM 54 - USER_LED_1_GREEN */
+-		led-1 {
+-			color = <LED_COLOR_ID_GREEN>;
+-			function = LED_FUNCTION_DEBUG;
+-			function-enumerator = <1>;
+-			gpios = <&gpio3 1 GPIO_ACTIVE_HIGH>;
+-		};
+-
+-		/* SODIMM 56 - USER_LED_2_RED */
+-		led-2 {
+-			color = <LED_COLOR_ID_RED>;
+-			function = LED_FUNCTION_DEBUG;
+-			function-enumerator = <2>;
+-			gpios = <&gpio3 6 GPIO_ACTIVE_HIGH>;
+-		};
+-
+-		/* SODIMM 58 - USER_LED_2_GREEN */
+-		led-3 {
+-			color = <LED_COLOR_ID_GREEN>;
+-			function = LED_FUNCTION_DEBUG;
+-			function-enumerator = <2>;
+-			gpios = <&gpio3 7 GPIO_ACTIVE_HIGH>;
+-		};
+-	};
+-
+ 	panel {
+ 		compatible = "ampire,am-1280800n3tzqw-t00h";
+ 		backlight = <&backlight>;
+@@ -81,23 +43,6 @@ &backlight {
+ 	status = "okay";
+ };
+ 
+-/* Verdin SPI_1 */
+-&ecspi1 {
+-	pinctrl-0 = <&pinctrl_ecspi1>, <&pinctrl_tpm_cs>;
+-	cs-gpios = <&gpio5 9 GPIO_ACTIVE_LOW>, <&gpio3 16 GPIO_ACTIVE_LOW>;
+-	status = "okay";
+-
+-	tpm@1 {
+-		compatible = "infineon,slb9670", "tcg,tpm_tis-spi";
+-		reg = <1>;
+-		pinctrl-names = "default";
+-		pinctrl-0 = <&pinctrl_tpm_irq>;
+-		interrupt-parent = <&gpio3>;
+-		interrupts = <14 IRQ_TYPE_LEVEL_LOW>;
+-		spi-max-frequency = <18500000>;
+-	};
+-};
+-
+ /* EEPROM on ATDM */
+ &eeprom_carrier_board {
+ 	status = "okay";
+@@ -129,6 +74,20 @@ &hwmon_temp {
+ 	status = "okay";
+ };
+ 
++/* Verdin I2C_1 */
++&i2c1 {
++	status = "okay";
++
++        pca6416: gpio@20 {
++                compatible = "ti,tca6416";
++                reg = <0x20>;
++                gpio-controller;
++                #gpio-cells = <2>;
++        };
++};
++
++
++
+ /* Verdin I2C_2_DSI */
+ &i2c2 {
+ 	status = "okay";
+@@ -184,16 +143,6 @@ &reg_usdhc2_vmmc {
+ 	vin-supply = <&reg_3p3v>;
+ };
+ 
+-/* Verdin UART_1 */
+-&uart1 {
+-	status = "okay";
+-};
+-
+-/* Verdin UART_2 */
+-&uart2 {
+-	status = "okay";
+-};
+-
+ /* Verdin UART_3 */
+ &uart3 {
+ 	status = "okay";
+@@ -222,24 +171,77 @@ &usdhc2 {
+ 	status = "okay";
+ };
+ 
+-&iomuxc {
+-	pinctrl_leds: ledsgrp {
+-		fsl,pins =
+-			<MX8MP_IOMUXC_NAND_ALE__GPIO3_IO00	0x106>, /* SODIMM 52 */
+-			<MX8MP_IOMUXC_NAND_CE0_B__GPIO3_IO01	0x106>, /* SODIMM 54 */
+-			<MX8MP_IOMUXC_NAND_DATA00__GPIO3_IO06	0x106>, /* SODIMM 56 */
+-			<MX8MP_IOMUXC_NAND_DATA01__GPIO3_IO07	0x106>; /* SODIMM 58 */
+-	};
+ 
+-	pinctrl_tpm_cs: tpmcsgrp {
+-		fsl,pins =
+-			<MX8MP_IOMUXC_NAND_READY_B__GPIO3_IO16	0x82>; /* SODIMM 64 */
+-	};
++&gpio3 {
++        gpio-line-names = "DIGITAL_OUTPUT_RESET",
++                          "DIGITAL_OUTPUT_INT",
++                          "",
++                          "",
++                          "",
++                          "",
++                          "AUDIO_PWR_CONTROL",
++                          "VIDEO_RESET",
++                          "VIDEO_INTERRUPT_Q",
++                          "VIDEO_POWER_DOWN",
++                          "",
++                          "",
++                          "",
++                          "",
++                          "UART_4_CTS_AS_GPIO",
++                          "",
++                          "DIGITAL_INPUT_FAULT",
++                          "",
++                          "",
++                          "SODIMM_34",
++                          "SODIMM_19",
++                          "",
++                          "SODIMM_32",
++                          "",
++                          "",
++                          "SODIMM_30",
++                          "SODIMM_59",
++                          "SODIMM_57",
++                          "SODIMM_63",
++                          "SODIMM_61";
++
++        atdm_fix_gpio {
++                pinctrl-names = "default";
++                pinctrl-0 = <&pinctrl_atdm_gspi_gpio>;
++        };
+ 
+-	pinctrl_tpm_irq: tpmirqgrp {
+-		fsl,pins =
+-			<MX8MP_IOMUXC_NAND_DQS__GPIO3_IO14	0x16>; /* SODIMM 66 */
++};
++
++&ecspi1 {
++        status = "okay";
++        fsl,spi-num-chipselects = <1>;
++        cs-gpios = <&gpio5 9 GPIO_ACTIVE_LOW>;
++        pinctrl-names = "default";
++        pinctrl-0 = <&pinctrl_ecspi1>;
++	
++	spidev0: spi1@0 {
++		reg = <0>;	
++                compatible = "mcp3208";
++                spi-max-frequency = <500000>;
+ 	};
++};
++
++&ecspi3 {
++        #address-cells = <1>;
++        #size-cells = <0>;
++        fsl,spi-num-chipselects = <1>;
++        pinctrl-names = "default";
++        pinctrl-0 = <&pinctrl_ecspi3>;
++        cs-gpios = <&gpio5 25 GPIO_ACTIVE_LOW>;
++        status = "okay";
++
++        spidev1: spi@0 {
++                reg = <0>;
++                compatible = "maxim,max31911";
++                spi-max-frequency = <500000>;
++        };
++};
++
++&iomuxc {
+ 
+ 	/* Verdin I2S_2_SYNC shared with touch Interrupt */
+ 	pinctrl_i2s_2_sync_touch_interrupt: i2s2synctouchintgrp {
+@@ -252,4 +254,26 @@ pinctrl_i2s_2_d_in_touch_reset: i2s2dintouchresetgrp {
+ 		fsl,pins =
+ 			<MX8MP_IOMUXC_SAI3_RXD__GPIO4_IO30	0x184>; /* SODIMM 48 */
+ 	};
++
++	/* Verdin QSPI_GPIO */
++	pinctrl_atdm_gspi_gpio: atdm_qspi_gpio {
++		fsl,pins =
++                        <MX8MP_IOMUXC_NAND_ALE__GPIO3_IO00		0x106>, /* SODIMM 52, DIGITAL_OUTPUT_RESET */
++                        <MX8MP_IOMUXC_NAND_CE0_B__GPIO3_IO01	       	0x16>,  /* SODIMM 54, DIGITAL_OUTPUT_INT */
++                        <MX8MP_IOMUXC_NAND_DQS__GPIO3_IO14	        0x106>,  /* SODIMM 66, UART_4_CTS */
++                        <MX8MP_IOMUXC_NAND_DATA00__GPIO3_IO06     	0x106>,  /* SODIMM 56, AUDIO_PWR_CONTROL */
++                        <MX8MP_IOMUXC_NAND_DATA01__GPIO3_IO07     	0x106>,  /* SODIMM 58, VIDEO_RESET*/
++                        <MX8MP_IOMUXC_NAND_DATA02__GPIO3_IO08     	0x16>,  /* SODIMM 60, VIDEO_INTERRUPT_Q*/
++                        <MX8MP_IOMUXC_NAND_DATA03__GPIO3_IO09     	0x106>,  /* SODIMM 62, VIDEO_POWER_DOWN */
++                        <MX8MP_IOMUXC_NAND_READY_B__GPIO3_IO16          0x16>;  /* SODIMM 64, DIGITAL_INPUT_FAULT*/
++	};
++
++        pinctrl_ecspi3: ecspi3grp {
++		fsl,pins =
++			<MX8MP_IOMUXC_UART1_TXD__ECSPI3_MOSI		0x1c0>,
++			<MX8MP_IOMUXC_UART1_RXD__ECSPI3_SCLK		0x1c0>,
++			<MX8MP_IOMUXC_UART2_RXD__ECSPI3_MISO		0x1c0>,
++			<MX8MP_IOMUXC_UART2_TXD__GPIO5_IO25		0x1c0>; //TODO need to change to GPIO or SS0 ?
++        };
++
+ };
+diff --git a/arch/arm64/boot/dts/freescale/imx8mp-verdin.dtsi b/arch/arm64/boot/dts/freescale/imx8mp-verdin.dtsi
+index 9d6298748c4d..5eaf9000e535 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mp-verdin.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mp-verdin.dtsi
+@@ -341,23 +341,30 @@ queue4 {
+ /* Verdin ETH_2_RGMII */
+ &fec {
+ 	fsl,magic-packet;
+-	phy-handle = <&ethphy1>;
++//	phy-handle = <&ethphy1>;
+ 	phy-mode = "rgmii-id";
+ 	pinctrl-names = "default", "sleep";
+ 	pinctrl-0 = <&pinctrl_fec>;
+ 	pinctrl-1 = <&pinctrl_fec_sleep>;
+ 
++	fixed-link {
++		speed = <1000>;
++		full-duplex;
++		pause;
++	};
++
+ 	mdio {
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+-
++/*
+ 		ethphy1: ethernet-phy@7 {
+-			compatible = "ethernet-phy-ieee802.3-c22";
++			compatible = "Microchip KSZ9131 Gigabit PHY";
+ 			interrupt-parent = <&gpio4>;
+ 			interrupts = <18 IRQ_TYPE_LEVEL_LOW>;
+ 			micrel,led-mode = <0>;
+ 			reg = <7>;
+ 		};
++*/
+ 	};
+ };
+ 
+-- 
+2.25.1
+

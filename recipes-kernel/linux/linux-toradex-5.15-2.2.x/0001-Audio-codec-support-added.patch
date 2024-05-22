@@ -1,0 +1,83 @@
+From b7dfa2f1db16b1b8d928fbb73dea48a4f6a7196e Mon Sep 17 00:00:00 2001
+From: Jignesh <jignesh@ebytelogic.com>
+Date: Fri, 19 Apr 2024 14:21:57 +0530
+Subject: [PATCH] Audio codec support added
+
+---
+ .../dts/freescale/imx8mp-verdin-atdm.dtsi     | 53 +++++++++++++++++++
+ 1 file changed, 53 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi b/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi
+index 0a1e6194c1e8c..d4aa75c8a0055 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi
+@@ -19,6 +19,42 @@ panel_lvds_in_atdm: endpoint {
+ 			};
+                 };
+         };
++
++        sound {
++                compatible = "simple-audio-card";
++                simple-audio-card,bitclock-master = <&codec_dai>;
++                simple-audio-card,format = "i2s";
++                simple-audio-card,frame-master = <&codec_dai>;
++                simple-audio-card,mclk-fs = <256>;
++                simple-audio-card,name = "imx8mp-nau8822";
++                simple-audio-card,routing =
++                        "Headphones", "LHP",
++                        "Headphones", "RHP",
++                        "Speaker", "LSPK",
++                        "Speaker", "RSPK",
++                        "Line Out", "AUXOUT1",
++                        "Line Out", "AUXOUT2",
++                        "LAUX", "Line In",
++                        "RAUX", "Line In",
++                        "LMICP", "Mic In",
++                        "RMICP", "Mic In";
++                simple-audio-card,widgets =
++                        "Headphones", "Headphones",
++                        "Line Out", "Line Out",
++                        "Speaker", "Speaker",
++                        "Microphone", "Mic In",
++                        "Line", "Line In";
++
++                codec_dai: simple-audio-card,codec {
++                        clocks = <&audio_blk_ctrl IMX8MP_CLK_AUDIO_BLK_CTRL_SAI1_MCLK1>;
++                        sound-dai = <&nau8822_1a>;
++                };
++
++                simple-audio-card,cpu {
++                        sound-dai = <&sai1>;
++                };
++        };
++
+ };
+ 
+ &ldb {
+@@ -133,6 +169,23 @@ &i2c3 {
+ /* Verdin I2C_1 */
+ &i2c4 {
+ 	status = "okay";
++
++	/* Audio Codec */
++        nau8822_1a: audio-codec@1a {
++                compatible = "nuvoton,nau8822";
++                reg = <0x1a>;
++                pinctrl-names = "default";
++                pinctrl-0 = <&pinctrl_sai1>;
++                #sound-dai-cells = <0>;
++        };
++};
++
++&sai1 {
++        assigned-clocks = <&clk IMX8MP_CLK_SAI1>;
++        assigned-clock-parents = <&clk IMX8MP_AUDIO_PLL1_OUT>;
++        assigned-clock-rates = <24576000>;
++        fsl,sai-mclk-direction-output;
++        status = "okay";
+ };
+ 
+ /* Verdin PCIE_1 */
+-- 
+2.25.1
+
