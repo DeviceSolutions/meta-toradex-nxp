@@ -1,0 +1,25 @@
+From 1967427d5c1b8f52d06982b491dbe33ace4eb4d7 Mon Sep 17 00:00:00 2001
+From: Jignesh <jignesh@ebytelogic.com>
+Date: Fri, 3 May 2024 11:45:44 +0530
+Subject: [PATCH] max31 chip configure in daisy chain mode for 2 slave
+
+Signed-off-by: Jignesh <jignesh@ebytelogic.com>
+---
+ arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi b/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi
+index d4aa75c8a0055..77f4135ebb8d7 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi
+@@ -320,6 +320,7 @@ spidev1: spi@0 {
+                 reg = <0>;
+                 compatible = "maxim,max31911";
+                 spi-max-frequency = <500000>;
++		#daisy-chained-devices = <2>;
+         };
+ };
+ 
+-- 
+2.25.1
+

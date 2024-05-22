@@ -17,6 +17,7 @@ SRC_URI:append = " \
 	file://0001-Gpio-Develpment.patch \
 	file://0001-GPIO-Development-continue.patch \
 	file://0001-Audio-codec-support-added.patch \
+	file://0001-max31-chip-configure-in-daisy-chain-mode-for-2-slave.patch \
 	file://atdm_driver.cfg"
 
 # Load USB functions configurable through configfs (CONFIG_USB_CONFIGFS)
