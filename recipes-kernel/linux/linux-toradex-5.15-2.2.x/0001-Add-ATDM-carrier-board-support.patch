@@ -1,0 +1,288 @@
+From f1b7036fd5c0cf51fe064e4142c8bea50506850c Mon Sep 17 00:00:00 2001
+From: Jignesh <jignesh@ebytelogic.com>
+Date: Tue, 19 Mar 2024 11:09:15 +0530
+Subject: [PATCH 1/3] Add ATDM carrier board support
+
+This patch takes the reference of mallow board. So all mallow detail copied
+as ATDM support as considering baseline
+
+Signed-off-by: Jignesh <jignesh@ebytelogic.com>
+---
+ arch/arm64/boot/dts/freescale/Makefile        |   2 +
+ .../dts/freescale/imx8mp-verdin-atdm.dtsi     | 197 ++++++++++++++++++
+ .../freescale/imx8mp-verdin-nonwifi-atdm.dts  |  17 ++
+ .../dts/freescale/imx8mp-verdin-wifi-atdm.dts |  17 ++
+ 4 files changed, 233 insertions(+)
+ create mode 100644 arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi
+ create mode 100644 arch/arm64/boot/dts/freescale/imx8mp-verdin-nonwifi-atdm.dts
+ create mode 100644 arch/arm64/boot/dts/freescale/imx8mp-verdin-wifi-atdm.dts
+
+diff --git a/arch/arm64/boot/dts/freescale/Makefile b/arch/arm64/boot/dts/freescale/Makefile
+index 8b378f4510b6..f68b31dd447d 100644
+--- a/arch/arm64/boot/dts/freescale/Makefile
++++ b/arch/arm64/boot/dts/freescale/Makefile
+@@ -88,10 +88,12 @@ dtb-$(CONFIG_ARCH_MXC) += imx8mm-nitrogen-r2.dtb
+ dtb-$(CONFIG_ARCH_MXC) += imx8mm-verdin-nonwifi-dahlia.dtb
+ dtb-$(CONFIG_ARCH_MXC) += imx8mm-verdin-nonwifi-dev.dtb
+ dtb-$(CONFIG_ARCH_MXC) += imx8mm-verdin-nonwifi-mallow.dtb
++dtb-$(CONFIG_ARCH_MXC) += imx8mm-verdin-nonwifi-atdm.dtb
+ dtb-$(CONFIG_ARCH_MXC) += imx8mm-verdin-nonwifi-yavia.dtb
+ dtb-$(CONFIG_ARCH_MXC) += imx8mm-verdin-wifi-dahlia.dtb
+ dtb-$(CONFIG_ARCH_MXC) += imx8mm-verdin-wifi-dev.dtb
+ dtb-$(CONFIG_ARCH_MXC) += imx8mm-verdin-wifi-mallow.dtb
++dtb-$(CONFIG_ARCH_MXC) += imx8mm-verdin-wifi-atdm.dtb
+ dtb-$(CONFIG_ARCH_MXC) += imx8mm-verdin-wifi-yavia.dtb
+ dtb-$(CONFIG_ARCH_MXC) += imx8mn-beacon-kit.dtb
+ dtb-$(CONFIG_ARCH_MXC) += imx8mn-evk.dtb imx8mn-evk-rm67191.dtb imx8mn-evk-rpmsg.dtb
+diff --git a/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi b/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi
+new file mode 100644
+index 000000000000..1641655f8787
+--- /dev/null
++++ b/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi
+@@ -0,0 +1,197 @@
++/*
++ * Copyright 2024 ATDM 
++ *
++ * Common dtsi for Verdin IMX8MP SoM on ATDM carrier board
++ *
++ * https://www.toradex.com/computer-on-modules/verdin-arm-family/nxp-imx-8m-plus
++ */
++
++#include <dt-bindings/leds/common.h>
++
++/ {
++	leds {
++		compatible = "gpio-leds";
++		pinctrl-names = "default";
++		pinctrl-0 = <&pinctrl_leds>;
++
++		/* SODIMM 52 - USER_LED_1_RED */
++		led-0 {
++			color = <LED_COLOR_ID_RED>;
++			function = LED_FUNCTION_DEBUG;
++			function-enumerator = <1>;
++			gpios = <&gpio3 0 GPIO_ACTIVE_HIGH>;
++		};
++
++		/* SODIMM 54 - USER_LED_1_GREEN */
++		led-1 {
++			color = <LED_COLOR_ID_GREEN>;
++			function = LED_FUNCTION_DEBUG;
++			function-enumerator = <1>;
++			gpios = <&gpio3 1 GPIO_ACTIVE_HIGH>;
++		};
++
++		/* SODIMM 56 - USER_LED_2_RED */
++		led-2 {
++			color = <LED_COLOR_ID_RED>;
++			function = LED_FUNCTION_DEBUG;
++			function-enumerator = <2>;
++			gpios = <&gpio3 6 GPIO_ACTIVE_HIGH>;
++		};
++
++		/* SODIMM 58 - USER_LED_2_GREEN */
++		led-3 {
++			color = <LED_COLOR_ID_GREEN>;
++			function = LED_FUNCTION_DEBUG;
++			function-enumerator = <2>;
++			gpios = <&gpio3 7 GPIO_ACTIVE_HIGH>;
++		};
++	};
++};
++
++&backlight {
++	power-supply = <&reg_3p3v>;
++};
++
++/* Verdin SPI_1 */
++&ecspi1 {
++	pinctrl-0 = <&pinctrl_ecspi1>, <&pinctrl_tpm_cs>;
++	cs-gpios = <&gpio5 9 GPIO_ACTIVE_LOW>, <&gpio3 16 GPIO_ACTIVE_LOW>;
++	status = "okay";
++
++	tpm@1 {
++		compatible = "infineon,slb9670", "tcg,tpm_tis-spi";
++		reg = <1>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&pinctrl_tpm_irq>;
++		interrupt-parent = <&gpio3>;
++		interrupts = <14 IRQ_TYPE_LEVEL_LOW>;
++		spi-max-frequency = <18500000>;
++	};
++};
++
++/* EEPROM on ATDM */
++&eeprom_carrier_board {
++	status = "okay";
++};
++
++/* Verdin ETH_1 */
++&eqos {
++	status = "okay";
++};
++
++/* Verdin CAN_1 */
++&flexcan1 {
++	status = "okay";
++};
++
++/* Verdin CAN_2 */
++&flexcan2 {
++	status = "okay";
++};
++
++/* Temperature sensor on ATDM */
++&hwmon_temp {
++	compatible = "ti,tmp1075";
++	status = "okay";
++};
++
++/* Verdin I2C_2_DSI */
++&i2c2 {
++	status = "okay";
++};
++
++/* Verdin I2C_4_CSI */
++&i2c3 {
++	status = "okay";
++};
++
++/* Verdin I2C_1 */
++&i2c4 {
++	status = "okay";
++};
++
++/* Verdin PCIE_1 */
++&pcie {
++	status = "okay";
++};
++
++&pcie_phy {
++	status = "okay";
++};
++
++/* Verdin PWM_1 */
++&pwm1 {
++	status = "okay";
++};
++
++/* Verdin PWM_2 */
++&pwm2 {
++	status = "okay";
++};
++
++/* Verdin PWM_3_DSI */
++&pwm3 {
++	status = "okay";
++};
++
++&reg_usdhc2_vmmc {
++	vin-supply = <&reg_3p3v>;
++};
++
++/* Verdin UART_1 */
++&uart1 {
++	status = "okay";
++};
++
++/* Verdin UART_2 */
++&uart2 {
++	status = "okay";
++};
++
++/* Verdin UART_3 */
++&uart3 {
++	status = "okay";
++};
++
++/* Verdin USB_1 */
++&usb3_0 {
++	status = "okay";
++};
++
++&usb3_phy0 {
++	status = "okay";
++};
++
++/* Verdin USB_2 */
++&usb3_1 {
++	status = "okay";
++};
++
++&usb3_phy1 {
++	status = "okay";
++};
++
++/* Verdin SD_1 */
++&usdhc2 {
++	status = "okay";
++};
++
++&iomuxc {
++	pinctrl_leds: ledsgrp {
++		fsl,pins =
++			<MX8MP_IOMUXC_NAND_ALE__GPIO3_IO00	0x106>, /* SODIMM 52 */
++			<MX8MP_IOMUXC_NAND_CE0_B__GPIO3_IO01	0x106>, /* SODIMM 54 */
++			<MX8MP_IOMUXC_NAND_DATA00__GPIO3_IO06	0x106>, /* SODIMM 56 */
++			<MX8MP_IOMUXC_NAND_DATA01__GPIO3_IO07	0x106>; /* SODIMM 58 */
++	};
++
++	pinctrl_tpm_cs: tpmcsgrp {
++		fsl,pins =
++			<MX8MP_IOMUXC_NAND_READY_B__GPIO3_IO16	0x82>; /* SODIMM 64 */
++	};
++
++	pinctrl_tpm_irq: tpmirqgrp {
++		fsl,pins =
++			<MX8MP_IOMUXC_NAND_DQS__GPIO3_IO14	0x16>; /* SODIMM 66 */
++	};
++};
+diff --git a/arch/arm64/boot/dts/freescale/imx8mp-verdin-nonwifi-atdm.dts b/arch/arm64/boot/dts/freescale/imx8mp-verdin-nonwifi-atdm.dts
+new file mode 100644
+index 000000000000..8e9d0dad2d37
+--- /dev/null
++++ b/arch/arm64/boot/dts/freescale/imx8mp-verdin-nonwifi-atdm.dts
+@@ -0,0 +1,17 @@
++/*
++ * Copyright 2024 ATDM
++ */
++
++/dts-v1/;
++
++#include "imx8mp-verdin.dtsi"
++#include "imx8mp-verdin-nonwifi.dtsi"
++#include "imx8mp-verdin-atdm.dtsi"
++
++/ {
++	model = "Toradex Verdin iMX8M Plus on ATDM Board";
++	compatible = "toradex,verdin-imx8mp-nonwifi-atdm",
++		     "toradex,verdin-imx8mp-nonwifi",
++		     "toradex,verdin-imx8mp",
++		     "fsl,imx8mp";
++};
+diff --git a/arch/arm64/boot/dts/freescale/imx8mp-verdin-wifi-atdm.dts b/arch/arm64/boot/dts/freescale/imx8mp-verdin-wifi-atdm.dts
+new file mode 100644
+index 000000000000..23afa1e6a266
+--- /dev/null
++++ b/arch/arm64/boot/dts/freescale/imx8mp-verdin-wifi-atdm.dts
+@@ -0,0 +1,17 @@
++/*
++ * Copyright 2024 ATDM
++ */
++
++/dts-v1/;
++
++#include "imx8mp-verdin.dtsi"
++#include "imx8mp-verdin-wifi.dtsi"
++#include "imx8mp-verdin-atdm.dtsi"
++
++/ {
++	model = "Toradex Verdin iMX8M Plus WB on ATDM Board";
++	compatible = "toradex,verdin-imx8mp-wifi-atdm",
++		     "toradex,verdin-imx8mp-wifi",
++		     "toradex,verdin-imx8mp",
++		     "fsl,imx8mp";
++};
+-- 
+2.25.1
+

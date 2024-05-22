@@ -1,0 +1,25 @@
+From 1a61e7f2de6f0e7e215a22498844b97b53a270fb Mon Sep 17 00:00:00 2001
+From: Jignesh <jignesh@ebytelogic.com>
+Date: Wed, 27 Mar 2024 11:02:54 +0530
+Subject: [PATCH] Add default atdm board instead of dev
+
+---
+ include/configs/verdin-imx8mp.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/configs/verdin-imx8mp.h b/include/configs/verdin-imx8mp.h
+index 88299ad950..b8ff125876 100644
+--- a/include/configs/verdin-imx8mp.h
++++ b/include/configs/verdin-imx8mp.h
+@@ -83,7 +83,7 @@
+ 	"boot_scripts=" BOOT_SCRIPT "\0" \
+ 	"boot_script_dhcp=" BOOT_SCRIPT "\0" \
+ 	"console=ttymxc2\0" \
+-	"fdt_board=dev\0" \
++	"fdt_board=atdm\0" \
+ 	"initrd_addr=0x43800000\0" \
+ 	"initrd_high=0xffffffffffffffff\0" \
+ 	"setup=setenv setupargs console=tty1 console=${console},${baudrate} " \
+-- 
+2.25.1
+
