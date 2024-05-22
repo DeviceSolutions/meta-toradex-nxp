@@ -13,6 +13,10 @@ SRCREV = "d262075124dcfe2170acfc7db25a1a6155658ec6"
 SRCREV:use-head-next = "${AUTOREV}"
 SRCBRANCH = "toradex_imx_lf_v2022.04"
 
+
+SRC_URI:append = " \
+	file://0001-Add-default-atdm-board-instead-of-dev.patch"
+
 S = "${WORKDIR}/git"
 B = "${WORKDIR}/build"
 

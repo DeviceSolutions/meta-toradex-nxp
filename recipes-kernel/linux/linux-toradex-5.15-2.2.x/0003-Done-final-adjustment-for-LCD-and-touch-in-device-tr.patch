@@ -1,0 +1,92 @@
+From ee63fd8724c6a1ab496508724951885a9cb2dac0 Mon Sep 17 00:00:00 2001
+From: Jignesh <jignesh@ebytelogic.com>
+Date: Fri, 22 Mar 2024 12:21:42 +0530
+Subject: [PATCH 3/3] Done final adjustment for LCD and touch in device tree
+
+---
+ .../dts/freescale/imx8mp-verdin-atdm.dtsi     | 53 +++++++++++++++++++
+ 1 file changed, 53 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi b/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi
+index 1641655f8787..66cc53c72c49 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mp-verdin-atdm.dtsi
+@@ -46,10 +46,39 @@ led-3 {
+ 			gpios = <&gpio3 7 GPIO_ACTIVE_HIGH>;
+ 		};
+ 	};
++
++	panel {
++		compatible = "ampire,am-1280800n3tzqw-t00h";
++		backlight = <&backlight>;
++
++		port {
++			panel_lvds_in_atdm: endpoint {
++				remote-endpoint = <&lvds_out_atdm>;
++			};
++                };
++        };
++};
++
++&ldb {
++	status = "okay";
++	lvds_channel0: lvds-channel@0 {
++		fsl,data-mapping = "spwg";
++		fsl,data-width = <24>;
++		status = "okay";
++
++		port@1 {
++			reg = <1>;
++			lvds_out_atdm: endpoint {
++				remote-endpoint = <&panel_lvds_in_atdm>;
++			};
++		};
++	};
+ };
+ 
+ &backlight {
+ 	power-supply = <&reg_3p3v>;
++	pwms = <&pwm2 0 6666667 PWM_POLARITY_INVERTED>;
++	status = "okay";
+ };
+ 
+ /* Verdin SPI_1 */
+@@ -98,6 +127,18 @@ &hwmon_temp {
+ /* Verdin I2C_2_DSI */
+ &i2c2 {
+ 	status = "okay";
++
++	ili251x@41 {
++		compatible = "ili251x";
++		reg = <0x41>;
++		pinctrl-names = "default";
++                pinctrl-0 = <&pinctrl_i2s_2_sync_touch_interrupt>, <&pinctrl_i2s_2_d_in_touch_reset>;
++		interrupt-parent = <&gpio4>;
++		interrupts = <31 IRQ_TYPE_EDGE_FALLING>;
++		reset-gpios = <&gpio4 30 GPIO_ACTIVE_LOW>;
++		max-fingers = <6>;
++		status = "okay";
++	};
+ };
+ 
+ /* Verdin I2C_4_CSI */
+@@ -194,4 +235,16 @@ pinctrl_tpm_irq: tpmirqgrp {
+ 		fsl,pins =
+ 			<MX8MP_IOMUXC_NAND_DQS__GPIO3_IO14	0x16>; /* SODIMM 66 */
+ 	};
++
++	/* Verdin I2S_2_SYNC shared with touch Interrupt */
++	pinctrl_i2s_2_sync_touch_interrupt: i2s2synctouchintgrp {
++		fsl,pins =
++			<MX8MP_IOMUXC_SAI3_TXFS__GPIO4_IO31	0x1c4>; /* SODIMM 44, INT */
++	};
++
++	/* Verdin I2S_2_D_IN (TOUCH_RESET#) */
++	pinctrl_i2s_2_d_in_touch_reset: i2s2dintouchresetgrp {
++		fsl,pins =
++			<MX8MP_IOMUXC_SAI3_RXD__GPIO4_IO30	0x184>; /* SODIMM 48 */
++	};
+ };
+-- 
+2.25.1
+
