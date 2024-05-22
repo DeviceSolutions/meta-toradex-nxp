@@ -13,6 +13,10 @@ SRC_URI:append = " \
 	file://0001-Add-ATDM-carrier-board-support.patch \
 	file://0002-Add-touch-driver-from-latest-kernel-source-6.x.patch \
 	file://0003-Done-final-adjustment-for-LCD-and-touch-in-device-tr.patch \
+	file://0004-Enable-second-ethernet-port.patch \
+	file://0001-Gpio-Develpment.patch \
+	file://0001-GPIO-Development-continue.patch \
+	file://0001-Audio-codec-support-added.patch \
 	file://atdm_driver.cfg"
 
 # Load USB functions configurable through configfs (CONFIG_USB_CONFIGFS)
@@ -27,7 +31,7 @@ SRCBRANCH = "toradex_5.15-2.2.x-imx"
 SRCREV_machine = "23a8e831749daa8b77e349d827715dd1d7f8e9a5"
 SRCREV_machine:use-head-next = "${AUTOREV}"
 
-DEPENDS += "bc-native"
+DEPENDS += "bc-native alsa-utils"
 COMPATIBLE_MACHINE = "mx8-nxp-bsp"
 
 KBUILD_DEFCONFIG:mx8-nxp-bsp ?= "toradex_defconfig"
